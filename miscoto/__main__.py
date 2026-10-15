@@ -163,7 +163,7 @@ def main():
     parent_parser_opt.add_argument(
         "--optsol",
         dest="optsol",
-        help="one optimal solutions",
+        help="one optimal solution",
         required=False,
         action="store_true"
     )
@@ -174,6 +174,23 @@ def main():
         help="union of optimal solutions",
         required=False,
         action="store_true"
+    )
+    parent_parser_subset = argparse.ArgumentParser(add_help=False)
+    parent_parser_subset.add_argument(
+        "--subsetmin",
+        dest="subset_minimal",
+        help="subset minimal solutions",
+        required=False,
+        action="store_true"
+    )
+    parent_parser_n_subset = argparse.ArgumentParser(add_help=False)
+    parent_parser_n_subset.add_argument(
+        "-nmax",
+        "--nmax",
+        dest="n_max_subset",
+        help="maximal number of minimal subsets to compute",
+        required=False,
+        # action="store_true"
     )
 
     # Miscoto focus specific argument.
@@ -256,7 +273,8 @@ def main():
             parent_parser_opt_b, parent_parser_opt_s, parent_parser_t,
             parent_parser_m, parent_parser_o,
             parent_parser_op, parent_parser_a, parent_parser_e, parent_parser_i,
-            parent_parser_u, parent_parser_opt
+            parent_parser_u, parent_parser_opt, parent_parser_subset,
+            parent_parser_n_subset
         ],
         description=
         """
@@ -266,14 +284,14 @@ def main():
         option: soup = minimal size community in a mixed-bag
         framework. minexch = minimal size and minimal exchange community.
         Can compute one minimal solution and or union, intersection, enumeration of
-        all minimal solutions
+        all minimal solutions, subset minimal solutions
         """,
         usage = """
         **1** from SBML files with or without a host metabolic model
-        miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
+        miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--subsetmin] [-nmax N] [--output]
         \n
         **2** from a pre-computed instance with possibly (additional) seeds or targets
-        miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
+        miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--subsetmin] [-nmax N] [--output]
         \n
         Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
         \n
@@ -334,8 +352,18 @@ def main():
             optsol = True
         else:
             optsol = False
-        run_mincom(args.option, args.bactsymbionts, args.asp, args.targets, args.seeds, args.modelhost,
-                    intersection_arg, enumeration_arg, union_arg, optsol, args.output)
+        if args.subset_minimal:
+            subset_arg = True
+        else:
+            subset_arg = False
+        if args.n_max_subset:
+            n_max_arg = int(args.n_max_subset)
+        else:
+            n_max_arg = 0
+        run_mincom(args.option, args.bactsymbionts, args.asp, args.targets,
+                   args.seeds, args.modelhost, intersection_arg,
+                   enumeration_arg, union_arg, optsol, subset_arg, n_max_arg,
+                   args.output)
     elif args.cmd == "instance":
         run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output)
     elif args.cmd == "focus":

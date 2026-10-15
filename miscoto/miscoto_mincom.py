@@ -31,10 +31,10 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 pusage = """
 **1** from SBML files
-miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
+miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--subsetmin] [--Nmax] [--output]
 \n
 **2** from a pre-computed instance with possibly (additional) seeds or targets
-miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--output]
+miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--intersection] [--union] [--enumeration] [--optsol] [--subsetmin] [--Nmax] [--output]
 \n
 Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 \n
@@ -43,7 +43,8 @@ Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 
 
 def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
-                intersection=False, enumeration=False, union=False, optsol=False, output_json=None):
+                intersection=False, enumeration=False, union=False, optsol=False,
+                subset_minimal=False, n_max_subsets=0, output_json=None):
     """Computes community selections in microbiota
         option (str, optional): Defaults to None. Modeling type: 'soup' for uncompartmentalized, 'minexch' for compartmentalized
         bacteria_dir (str, optional): Defaults to None. directory with symbionts metabolic networks
@@ -55,6 +56,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         enumeration (bool, optional): Defaults to False. compute enumeration of solutions
         union (bool, optional): Defaults to False. compute union of solutions
         optsol (bool, optional): Defaults to False. compute one optimal solution
+        subset_minimal (bool, optional): Defaults to False. compute subset minimal solutions
+        n_max_subsets (int, optional): Defaults to 0. maximum number of subset minimal solutions to compute
     """
     start_time = time.time()
     results = {}
@@ -111,7 +114,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             target_instance = True
 
         if seeds_file:
-            logger.info('Reading targets from ' + seeds_file)
+            logger.info('Reading seeds from ' + seeds_file)
             try:
                 seedsfacts = sbml.readSBMLspecies_clyngor(seeds_file, 'seed')
             except FileNotFoundError:
@@ -195,7 +198,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         logger.info(pusage)
         quit()
 
-    if not optsol and not union and not enumeration and not intersection:
+    if not optsol and not union and not enumeration and not intersection \
+        and not subset_minimal:
         logger.info(
             "No choice of solution provided. Will compute one optimal solution by default"
         )
