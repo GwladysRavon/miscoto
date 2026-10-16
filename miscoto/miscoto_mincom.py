@@ -84,10 +84,10 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
         else:
             encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
-        encoding_minimize = ''
+        encoding_minimize = commons.ASP_SRC_MINIMIZE_MIN_EXCH
     elif option == "minexch" and host_file != None:
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
-        encoding_minimize = ''
+        encoding_minimize = commons.ASP_SRC_MINIMIZE_MIN_EXCH
     else:
         logger.critical("invalid option choice")
         logger.info(pusage)

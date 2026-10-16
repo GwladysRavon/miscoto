@@ -46,6 +46,7 @@ ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')
 ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST = __asp_file('community_minexch_nohost')
 # Minimize
 ASP_SRC_MINIMIZE_SOUP = __asp_file('minimize_soup')
+ASP_SRC_MINIMIZE_MIN_EXCH = __asp_file('minimize_minexch')
 # Topological exchanges
 # ASP_SRC_TRANSP   = __asp_file('transported_metabolites')
 
