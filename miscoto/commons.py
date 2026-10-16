@@ -44,6 +44,8 @@ ASP_SRC_FOCUS = __asp_file('iscope_in_community')
 ASP_SRC_TOPO_SOUP   = __asp_file('community_soup')
 ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')
 ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST = __asp_file('community_minexch_nohost')
+# Minimize
+ASP_SRC_MINIMIZE_SOUP = __asp_file('minimize_soup')
 # Topological exchanges
 # ASP_SRC_TRANSP   = __asp_file('transported_metabolites')
 

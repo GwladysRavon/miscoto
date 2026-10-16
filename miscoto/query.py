@@ -51,7 +51,7 @@ def get_grounded_communities_from_file(instances, encoding):
         bytes: grounded model
     """
     prg = instances
-    prg.append(encoding)
+    prg.extend(encoding)
     grounding = clyngor.grounded_program(prg)
 
     return grounding

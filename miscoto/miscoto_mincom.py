@@ -68,6 +68,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
+        encoding_minimize = commons.ASP_SRC_MINIMIZE_SOUP
     elif option == "minexch" and host_file == None:
         # Check if there is an ASP instance file.
         if lp_instance_file:
@@ -83,8 +84,10 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
         else:
             encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
+        encoding_minimize = ''
     elif option == "minexch" and host_file != None:
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
+        encoding_minimize = ''
     else:
         logger.critical("invalid option choice")
         logger.info(pusage)
@@ -214,7 +217,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if seed_instance:
         instances.append(lp_instance_seeds)
 
-    grounded_instance = query.get_grounded_communities_from_file(instances, encoding)
+    encodings = [encoding]
+    # add mininize asp file if needed
+    if not subset_minimal or (subset_minimal and optsol):
+        encodings.append(encoding_minimize)
+
+    grounded_instance = query.get_grounded_communities_from_file(instances, encodings)
 
 
 # one solution

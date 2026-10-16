@@ -86,8 +86,6 @@ activated_coop_selectedcom(R,O) :- reaction(R,O) ; chosen_org(O); reversible(R,O
 target_producer_coop_selectedcom(O,T) :- chosen_org(O), target(T), activated_coop_selectedcom(R,O), product(T,R,O).
 target_producer_coop_selectedcom(O,T) :- chosen_org(O), target(T), activated_coop_selectedcom(R,O), reactant(T,R,O), reversible(R,O).
 
-#minimize { 1@1,B : chosen_bacteria(B)}.
-
 #show unproducible_target/1.
 #show producible_target/1.
 #show chosen_bacteria/1.
