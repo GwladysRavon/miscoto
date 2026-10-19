@@ -208,7 +208,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         )
         optsol = True
 
-    logger.info('\nFinding optimal communities for target production...')
+    if optsol or union or enumeration or intersection:
+        logger.info('\nFinding optimal communities for target production...')
     #ground the instance
     print(encoding)
     instances = [lp_instance_file]
@@ -431,6 +432,58 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             results['enum_exchanged'][count] = enum_exchanged_this_sol
             results['enum_bacteria'][count] = enum_bacteria_this_sol
             results['enum_targetsproducers'][count] = target_producers_this_sol
+            count+=1
+
+# subset minimal solutions
+    if subset_minimal:
+        logger.info('\nFinding subset minimal communities for target '+
+                    'production...')
+        logger.info('\n*** SUBSET MINIMAL SOLTUTIONS ***')
+        all_models = query.get_subset_minimal_from_g(grounded_instance,
+                                                     n_max_subsets)
+        count = 1
+
+        results['subsetmin_bacteria']  = {}
+        results['subsetmin_exchanged'] = {}
+        results['subsetmin_targetsproducers'] = {}
+        for model in all_models:
+            subsetmin_bacteria_this_sol = []
+            subsetmin_exchanged_this_sol = {}
+            target_producers_this_sol = {}
+            logger.info('\nSolution ' + str(count))
+            for pred in model:
+                if pred == 'chosen_bacteria':
+                    for a in model[pred, 1]:
+                        subsetmin_bacteria_this_sol.append(a[0])
+                elif pred == 'exchanged':
+                    for a in model[pred, 4]:
+                        if (a[2], a[3]) in subsetmin_exchanged_this_sol:  #subsetmin_exchanged_this_sol[(from,to)]=[(what,compartto);(what,compartto)]
+                            subsetmin_exchanged_this_sol[(a[2], a[3])].append(a[0])
+                        else:
+                            subsetmin_exchanged_this_sol[(a[2], a[3])] = []
+                            subsetmin_exchanged_this_sol[(a[2], a[3])].append(a[0])
+                elif pred == 'target_producer_coop_selectedcom':
+                    for a in model[pred, 2]:
+                        if not a[1] in target_producers_this_sol:
+                            target_producers_this_sol[a[1]] = [a[0]]
+                        else:
+                            target_producers_this_sol[a[1]].append(a[0])
+            logger.info("\t" + str(len(subsetmin_bacteria_this_sol)) +
+                        " bacterium(ia) in solution " + str(count))
+            for elem in subsetmin_bacteria_this_sol:
+                logger.info("\t" + elem)
+            if len(subsetmin_exchanged_this_sol) >= 1:
+                logger.info("\t" +
+                            str(sum(len(v) for v in 
+                                    subsetmin_exchanged_this_sol.values())) +
+                            " exchange(s) in solution " + str(count))
+                for fromto in subsetmin_exchanged_this_sol:
+                    logger.info('\texchange(s) from ' + fromto[0] + ' to ' +
+                                fromto[1] + " = " +
+                                ','.join(subsetmin_exchanged_this_sol[fromto]))
+            results['subsetmin_exchanged'][count] = subsetmin_exchanged_this_sol
+            results['subsetmin_bacteria'][count] = subsetmin_bacteria_this_sol
+            results['subsetmin_targetsproducers'][count] = target_producers_this_sol
             count+=1
 
     if delete_lp_instance == True:

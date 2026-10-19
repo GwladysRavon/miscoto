@@ -198,6 +198,21 @@ def get_all_communities_from_g_noopti(grounding, nmodels=0):
 
     return opt_models
 
+def get_subset_minimal_from_g(grounding, nmodels=0):
+    """Get subset minimal communities from grounding.
+
+    Args:
+        grounding (bytes): grounded model
+        nmodels (int, optional): Defaults to 0. number of models, 0 = all
+
+    Returns:
+        list: list of TermSets
+    """
+    options = '--configuration jumpy --heuristic=Domain --enum-mode=domRec --dom-mod=5,16'
+    models = clyngor.solve_from_grounded(grounding, options=options, nb_model=nmodels, use_clingo_module=False).by_arity.discard_quotes
+
+    return models
+
 def get_all_communities_opti(lp_instance, optimum, encoding, nmodels=0):
     """Get all communities, from TermSet
 
