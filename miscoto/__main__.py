@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade # noqa
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,6 @@
 import argparse
 import logging
 import sys
-import time
 
 from miscoto import __version__ as VERSION
 from miscoto.miscoto_instance import run_instance
@@ -41,7 +40,8 @@ logger.setLevel(logging.DEBUG)
 
 # Check ASP binaries.
 if not which('clingo'):
-    logger.critical('clingo is not in the Path, miscoto can not work without it.')
+    logger.critical('clingo is not in the Path,  ' +
+                    'miscoto can not work without it.')
     logger.critical('You can install with: pip install clyngor-with-clingo')
     sys.exit(1)
 
@@ -53,10 +53,10 @@ logger.setLevel(logging.DEBUG)
 def main():
     """Run programme.
     """
-    start_time = time.time()
     parser = argparse.ArgumentParser(
         "miscoto",
-        description=MESSAGE + " For specific help on each subcommand use: miscoto {cmd} --help",
+        description=MESSAGE +
+        " For specific help on each subcommand use: miscoto {cmd} --help",
         epilog=REQUIRES
     )
     parser.add_argument(
@@ -108,7 +108,7 @@ def main():
     )
 
     # Miscoto mincom and scopes specific arguments.
-    # Need to recreate some arguments as they are optional in mincom and scopes.
+    # Need to recreate some args as they are optional in mincom and scopes.
     parent_parser_opt_b = argparse.ArgumentParser(add_help=False)
     parent_parser_opt_b.add_argument(
         "-b",
@@ -183,7 +183,8 @@ def main():
         "--focus",
         nargs="+",
         dest="focus",
-        help="basename of the metabolic network to be analysed in the community",
+        help="basename of the metabolic network to be analysed in the " +
+             "community",
         required=False,
         default=[]
     )
@@ -202,73 +203,71 @@ def main():
         title='subcommands',
         description='valid subcommands:',
         dest="cmd")
-    instance_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "instance",
         help="Prepares instance for miscoto.",
         parents=[
             parent_parser_b, parent_parser_s, parent_parser_m, parent_parser_t,
             parent_parser_o
         ],
-        description=
-        """
-        Prepares instance for miscoto. Useful in a benchmark context: pre-calculating
-        the instance ensures that SBML files do not have to be read again.
-        Instances are text files that can be modified between runs through multiple
-        ways, including the use of bash tools
+        description="""
+        Prepares instance for miscoto. Useful in a benchmark context:
+        pre-calculating the instance ensures that SBML files do not have to be
+        read again. Instances are text files that can be modified between runs
+        through multiple ways, including the use of bash tools.
         """
     )
 
-    focus_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "focus",
-        help="Focus on one, several or all species and determine what they can produce alone or in its community.",
+        help="Focus on one, several or all species and determine what they " +
+             "can produce alone or in its community.",
         parents=[
             parent_parser_opt_b, parent_parser_opt_s, parent_parser_f,
             parent_parser_o, parent_parser_all, parent_parser_a
         ],
-        description=
-        """
-        Calculates the producible metabolites for one (or several or all) metabolic network 
-        of interest in two conditions. First when considered alone
-        in the given nutritional conditions. Secondly, among its community,
-        in the same nutritional conditions but those are necesarily
+        description="""
+        Calculates the producible metabolites for one (or several or all)
+        metabolic network of interest in two conditions. First when considered
+        alone in the given nutritional conditions. Secondly, among its
+        community, in the same nutritional conditions but those are necesarily
         altered by what other species are likely to produce.
         The name of the microbe of interest corresponds to the basename of
         its corresponding file in the symbionts input directory, e.g.
         for a file named `ecoli.sbml`, the given basename must be `ecoli`
         """,
-        usage = """
+        usage="""
         **1** from SBML files, with a focus on one species, whose metabolic network is located in foo/bar/ecoli.sbml
-        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json -f ecoli 
+        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json -f ecoli
         \n
         **2** from SBML files, with a focus on all species
-        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json --all 
+        miscoto focus -b symbiont_directory -s seeds.sbml --output outputfile.json --all
         \n
         **3** from a pre-computed instance with possibly (additional) seeds with a focus on 2 organisms whose metabolic networks are located in foo/bar/bact1.sbml and foo/bar/bact2.sbml
-        miscoto focus -a instance.lp -o option [-s seeds.sbml] --output outputfile.json -f bact1 bact2 
+        miscoto focus -a instance.lp -o option [-s seeds.sbml] --output outputfile.json -f bact1 bact2
         \n
-        """
+        """ # noqa
     )
 
-    mincom_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "mincom",
         help="Compute a community from a microbiome.",
         parents=[
             parent_parser_opt_b, parent_parser_opt_s, parent_parser_t,
             parent_parser_m, parent_parser_o,
-            parent_parser_op, parent_parser_a, parent_parser_e, parent_parser_i,
-            parent_parser_u, parent_parser_opt
+            parent_parser_op, parent_parser_a, parent_parser_e,
+            parent_parser_i, parent_parser_u, parent_parser_opt
         ],
-        description=
-        """
+        description="""
         Computes a community from a microbiome
-        Inputs: SBML models (symbionts and optionally host) + seeds + targets or an
-        instance pre-created with miscoto_instance.py,
+        Inputs: SBML models (symbionts and optionally host) + seeds + targets
+        or an instance pre-created with miscoto_instance.py,
         option: soup = minimal size community in a mixed-bag
         framework. minexch = minimal size and minimal exchange community.
-        Can compute one minimal solution and or union, intersection, enumeration of
-        all minimal solutions
+        Can compute one minimal solution and or union, intersection,
+        enumeration of all minimal solutions
         """,
-        usage = """
+        usage="""
         **1** from SBML files with or without a host metabolic model
         miscoto mincom [-m host.sbml] -b symbiont_directory -s seeds.sbml -t targets.sbml -o option [--intersection] [--union] [--enumeration] [--optsol] [--output]
         \n
@@ -277,24 +276,24 @@ def main():
         \n
         Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
         \n
-        """
+        """ # noqa
     )
 
-    scopes_parser = subparsers.add_parser(
+    subparsers.add_parser(
         "scopes",
         help="Compute the scope and target produciblity of a host.",
         parents=[
             parent_parser_opt_b, parent_parser_opt_s, parent_parser_t,
             parent_parser_m, parent_parser_o, parent_parser_a
         ],
-        description=
-        """
-        Computes the scope and target produciblity of a host (optional) and the added-value
-        of microbiome cooperation regarding scope and target producibility. The microbiome result part
-        gives the targets and compounds that are producible providing cooperation occurs
-        within the community of host + all symbionts and that were not producible with
-        the host alone (if any host provided).
-        Computation from SBML models or an instance pre-created with miscoto_instance.py
+        description="""
+        Computes the scope and target produciblity of a host (optional) and the
+        added-value of microbiome cooperation regarding scope and target
+        producibility. The microbiome result part gives the targets and
+        compounds that are producible providing cooperation occurs within the
+        community of host + all symbionts and that were not producible with the
+        host alone (if any host provided). Computation from SBML models or an
+        instance pre-created with miscoto_instance.py
         """,
         usage="""
         **1** from SBML files with a host metabolic model \n
@@ -305,7 +304,7 @@ def main():
         \n
         **3** from a pre-computed instance with possibly (additional) seeds or targets \n
         miscoto scopes -a instance.lp [-s seeds.sbml] [-t targets.sbml] [--output outputfile.json]
-        """
+        """ # noqa
     )
 
     args = parser.parse_args()
@@ -316,7 +315,8 @@ def main():
         sys.exit(1)
 
     if args.cmd == "scopes":
-        run_scopes(args.asp, args.targets, args.seeds, args.bactsymbionts, args.modelhost, args.output)
+        run_scopes(args.asp, args.targets, args.seeds, args.bactsymbionts,
+                   args.modelhost, args.output)
     elif args.cmd == "mincom":
         if args.intersection:
             intersection_arg = True
@@ -334,18 +334,25 @@ def main():
             optsol = True
         else:
             optsol = False
-        run_mincom(args.option, args.bactsymbionts, args.asp, args.targets, args.seeds, args.modelhost,
-                    intersection_arg, enumeration_arg, union_arg, optsol, args.output)
+        run_mincom(args.option, args.bactsymbionts, args.asp, args.targets,
+                   args.seeds, args.modelhost,
+                   intersection_arg, enumeration_arg, union_arg, optsol,
+                   args.output)
     elif args.cmd == "instance":
-        run_instance(args.bactsymbionts, args.seeds, args.modelhost, args.targets, args.output)
+        run_instance(args.bactsymbionts, args.seeds, args.modelhost,
+                     args.targets, args.output)
     elif args.cmd == "focus":
         if not args.all and not args.focus:
-            logger.error("ERROR - Either a list of networks with -f/--focus or the --all flag must be given as arguments.")
+            logger.error("ERROR - Either a list of networks with -f/--focus " +
+                         "or the --all flag must be given as arguments.")
             sys.exit(1)
         if args.all and args.focus:
-            logger.warning("WARNING - The --focus/-f argument was given along with the --all flag. All metabolic networks will be considered for analysis.")
+            logger.warning("WARNING - The --focus/-f argument was given " +
+                           "along with the --all flag. All metabolic " +
+                           "networks will be considered for analysis.")
 
-        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output, args.all, args.asp)
+        run_focus(args.seeds, args.bactsymbionts, args.focus, args.output,
+                  args.all, args.asp)
     else:
         logger.critical("Invalid commands for miscoto.")
         parser.print_help()
