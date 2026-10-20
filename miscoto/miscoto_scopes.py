@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade # noqa
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -29,17 +28,21 @@ from clyngor.as_pyasp import TermSet, Atom
 logger = logging.getLogger(__name__)
 
 
-def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacteria_dir=None, host_file=None, output_json=None):
-    """Computes community scopes
-        lp_instance_file ([str], optional): Defaults to None. [ASP facts instance of the problem]
-        targets_file ([str], optional): Defaults to None. [targets file]
-        seeds_file ([str], optional): Defaults to None. [seeds file]
-        bacteria_dir ([str], optional): Defaults to None. [directory of bacterial metabolic networks]
-        host_file ([str], optional): Defaults to None. [host metabolic network]
-        output_json ([str], optional): Defaults to None. [json file for output]
+def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None,
+               bacteria_dir=None, host_file=None, output_json=None):
+    """Computes community scopes.
+
+    lp_instance_file ([str], optional): Defaults to None.
+        [ASP facts instance of the problem]
+    targets_file ([str], optional): Defaults to None. [targets file]
+    seeds_file ([str], optional): Defaults to None. [seeds file]
+    bacteria_dir ([str], optional): Defaults to None.
+        [directory of bacterial metabolic networks]
+    host_file ([str], optional): Defaults to None. [host metabolic network]
+    output_json ([str], optional): Defaults to None. [json file for output]
 
     Returns:
-        [dic]: [all information related to scope computation]
+    results [dict]: [all information related to scope computation]
     """
 
     start_time = time.time()
@@ -50,7 +53,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
     target_instance = False
 
     if lp_instance_file:
-        if not os.path.isfile(lp_instance_file) :
+        if not os.path.isfile(lp_instance_file):
             logger.info('Instance file not found')
             sys.exit(1)
 
@@ -62,12 +65,13 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file, 'target')
+                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file,
+                                                            'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
             except ParseError:
-                logger.critical("Invalid syntax in SBML file: "+targets_file)
+                logger.critical("Invalid syntax in SBML file: " + targets_file)
                 sys.exit(1)
             lp_instance_targets = utils.to_file(targetsfacts)
             target_instance = True
@@ -85,7 +89,6 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             lp_instance_seeds = utils.to_file(seedsfacts)
             seed_instance = True
 
-
     # case 2: read inputs from SBML files
     elif bacteria_dir and seeds_file:
         if not os.path.isdir(bacteria_dir):
@@ -97,7 +100,9 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         if host_file:
             logger.info('Reading host network from ' + host_file)
             try:
-                draftnet = sbml.readSBMLnetwork_symbionts_clyngor(host_file, 'host_metab_mod')
+                draftnet = \
+                    sbml.readSBMLnetwork_symbionts_clyngor(host_file,
+                                                           'host_metab_mod')
             except FileNotFoundError:
                 logger.critical('Host file not found')
                 sys.exit(1)
@@ -116,7 +121,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             logger.critical('Seeds file not found')
             sys.exit(1)
         except ParseError:
-            logger.critical("Invalid syntax in SBML file: "+seeds_file)
+            logger.critical("Invalid syntax in SBML file: " + seeds_file)
             sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
 
@@ -141,8 +146,8 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         lp_instance_file = utils.to_file(lp_instance)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        bactfacts = TermSet()
-        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if
+                     isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:
             logger.critical('No bacterial networks in ' + bacteria_dir)
@@ -152,16 +157,17 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
             name = os.path.splitext(bacteria_file)[0]
             bacteria_path = os.path.join(bacteria_dir, bacteria_file)
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
+                one_bact_model = \
+                    sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
                 one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
-            except:
+            except ParseError:
                 logger.info('Could not read file ' + name + ', will ignore it')
 
     else:
         logger.critical("ERROR missing input")
-        #logger.info(pusage)
+        # logger.info(pusage)
         quit()
 
     logger.info("Computing scopes...")
@@ -171,7 +177,7 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
         instances.append(lp_instance_targets)
     if seed_instance:
         instances.append(lp_instance_seeds)
-    
+
     model = query.get_scopes(instances, commons.ASP_SRC_SCOPES)
 
     host_scope = []
@@ -240,20 +246,23 @@ def run_scopes(lp_instance_file=None, targets_file=None, seeds_file=None, bacter
 
     if host_file or input_instance:
         logger.info(
-            '\nHost metabolites becoming producible through cooperation with symbionts (excluding metabolites that were producible by the host alone) => '
-            + str(len(comhost_scope)) + "\n")
+            '\nHost metabolites becoming producible through cooperation ' +
+            'with symbionts (excluding metabolites that were producible by ' +
+            'the host alone) => ' + str(len(comhost_scope)) + "\n")
         logger.info("\n".join(comhost_scope))
         results['comhost_scope'] = comhost_scope
     if input_instance or not host_file:
         logger.info(
-            '\nMicrobiome (host and symbionts) metabolites that become producible through cooperation (excluding metabolites that were producible by the host alone) => '
+            '\nMicrobiome (host and symbionts) metabolites that become ' +
+            'producible through cooperation (excluding metabolites that ' +
+            'were producible by the host alone) => '
             + str(len(com_scope)) + "\n")
         logger.info("\n".join(com_scope))
         results['com_scope'] = com_scope
-    
+
     results["targets_producers"] = target_producers
 
-    if delete_lp_instance == True:
+    if delete_lp_instance is True:
         os.unlink(lp_instance_file)
 
     if output_json:
