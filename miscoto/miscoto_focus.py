@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade # noqa
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -29,17 +28,22 @@ from clyngor.as_pyasp import TermSet, Atom, Term
 logger = logging.getLogger(__name__)
 
 
-def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str=None, all_networks:bool=False, lp_instance_file:str=None):
-    """Computes individual and community scopes for chosen symbionts
-        seeds_file [str]: seeds file
-        bacteria_dir [str]: directory of bacterial metabolic networks
-        focus_bact [list]: basename of microbe of interest
-        output_json ([str], optional): Defaults to None. [json file for output]
-        all_networks (bool, optional): Defaults to False. [all metabolic networks should be considered for focus analysis]
-        lp_instance_file ([str], optional): Defaults to None. [name of the lp instance file]
-    
+def run_focus(seeds_file: str, bacteria_dir: str, focus_bact: list,
+              output_json: str = None, all_networks: bool = False,
+              lp_instance_file: str = None):
+    """Computes individual and community scopes for chosen symbionts.
+
+    seeds_file [str]: seeds file
+    bacteria_dir [str]: directory of bacterial metabolic networks
+    focus_bact [list]: basename of microbe of interest
+    output_json ([str], optional): Defaults to None. [json file for output]
+    all_networks (bool, optional): Defaults to False.
+        [all metabolic networks should be considered for focus analysis]
+    lp_instance_file ([str], optional): Defaults to None.
+        [name of the lp instance file]
+
     Returns:
-        [dic]: [all information related to focus computation]
+    results [dict]: [all information related to focus computation]
     """
     start_time = time.time()
     results = {}
@@ -50,38 +54,44 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
     focus_bact = list(set(focus_bact))
 
     # case 1: instance is provided, just read targets and seeds if given
-    input_instance = False
     seed_instance = False
     bact_focus_instance = False
 
     if lp_instance_file:
         focus_bact_termset = TermSet()
-        # find all bacteria names by grep-ing atoms "bacteria" in the instance file
+        # find all bacteria names by grep-ing atoms "bacteria" in the instance
+        # file
         all_bacteria_names = []
         with open(lp_instance_file, "r") as f:
             for line in f:
                 if line.startswith('bacteria("'):
                     all_bacteria_names.append(line.split('"')[1])
 
-        if all_networks: 
+        if all_networks:
             focus_bact = focus_bact2 = all_bacteria_names
             for ts in focus_bact:
-                focus_bact_termset.add(Term('target_species', ["\"" + ts + "\""]))
+                focus_bact_termset.add(Term('target_species',
+                                            ["\"" + ts + "\""]))
         else:
             focus_bact2 = []
             for ts in focus_bact:
-                if not ts in all_bacteria_names:
-                    logger.warning(f"\nWARNING - {ts} is not the basename of a symbiont from the instance {lp_instance_file}. {ts} will be ignored.")
+                if ts not in all_bacteria_names:
+                    logger.warning(f"\nWARNING - {ts} is not the basename " +
+                                   "of a symbiont from the instance " +
+                                   "{lp_instance_file}. {ts} will be ignored.")
                 else:
                     focus_bact2.append(ts)
-                    focus_bact_termset.add(Term('target_species', ["\"" + ts + "\""]))
+                    focus_bact_termset.add(Term('target_species',
+                                                ["\"" + ts + "\""]))
             if len(focus_bact2) == 0:
-                logger.critical(f"\nERROR - No element from {focus_bact} could be found in {lp_instance_file}. Please check the input file.")
+                logger.critical(f"\nERROR - No element from {focus_bact} " +
+                                "could be found in {lp_instance_file}. " +
+                                "Please check the input file.")
                 sys.exit(1)
         # add the name of microbe of interest in the instance file
         instance_bact = utils.to_file(focus_bact_termset)
         bact_focus_instance = True
-        
+
         if seeds_file:
             logger.info('Reading seeds from ' + seeds_file)
             try:
@@ -95,10 +105,9 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
             lp_instance_seeds = utils.to_file(seedsfacts)
             seed_instance = True
 
-
     elif bacteria_dir and seeds_file:
-        # case 2: instance is not provided, create one with seeds and bacterial networks
-        # will be deleted at the end of the programme
+        # case 2: instance is not provided, create one with seeds and
+        # bacterial networks. It will be deleted at the end of the programm
         delete_lp_instance = True
         # read seeds
         logger.info('Reading seeds from ' + seeds_file)
@@ -110,7 +119,7 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
         except ParseError:
             logger.critical("Invalid syntax in SBML file: " + seeds_file)
             sys.exit(1)
-            
+
         lp_instance_file = utils.to_file(seedsfacts)
 
         # read bacterial metabolic networks from SBML files
@@ -119,7 +128,8 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
             sys.exit(1)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if
+                     isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:
             logger.critical('No bacterial networks in ' + bacteria_dir)
@@ -133,11 +143,12 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
             all_bacteria_names.append(name)
             bacteria_path = os.path.join(bacteria_dir, bacteria_file)
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
+                one_bact_model = \
+                    sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
                 one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
-            except:
+            except ParseError:
                 logger.info('Could not read file ' + name + ', will ignore it')
 
         if all_networks:
@@ -145,12 +156,20 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
 
         focus_bact2 = []
         for ts in focus_bact:
-            if not ts in all_bacteria_names:
-                logger.warning(f"\nWARNING - {ts} is not the basename of a symbiont from {bacteria_dir}. If the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`. {ts} will be ignored.")
+            if ts not in all_bacteria_names:
+                logger.warning(f"\nWARNING - {ts} is not the basename of a " +
+                               "symbiont from {bacteria_dir}. " +
+                               "If the file of your network of interest is " +
+                               "named `ecoli.xml`, its basename would be " +
+                               " `ecoli`. {ts} will be ignored.")
             else:
                 focus_bact2.append(ts)
         if len(focus_bact2) == 0:
-            logger.critical(f"\nERROR - No element from {focus_bact} could be found in {bacteria_dir}. Please check the input having in mind that if the file of your network of interest is named `ecoli.xml`, its basename would be `ecoli`.")
+            logger.critical(f"\nERROR - No element from {focus_bact} could " +
+                            "be found in {bacteria_dir}. Please check the " +
+                            "input having in mind that if the file of your " +
+                            "network of interest is named `ecoli.xml`, " +
+                            "its basename would be `ecoli`.")
             sys.exit(1)
 
         # add the name of microbe of interest in the instance file
@@ -159,7 +178,6 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
                 f.write(f'target_species("{ts}").\n')
 
     # logger.info(os.path.abspath(lp_instance_file))
-
 
     logger.info(f"\nComputing producible metabolites for {focus_bact2}...")
     instances = [lp_instance_file]
@@ -189,20 +207,26 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
     for ts in focus_bact2:
         logger.info(f"\n############ {ts}")
         results[ts] = {}
-        
+
         if ts in indiv_produced:
-            logger.info(f"* {len(indiv_produced[ts])} metabolites producible by {ts} when alone:")
+            logger.info(f"* {len(indiv_produced[ts])} metabolites " +
+                        "producible by {ts} when alone:")
             logger.info("\n".join(indiv_produced[ts]))
         else:
             logger.info(f"\n* No metabolite producible by {ts} when alone:")
             indiv_produced[ts] = []
 
         if ts in produced_in_com:
-            newly_prod[ts] = list(set(produced_in_com[ts]) - set(indiv_produced[ts]))
-            logger.info(f"\n* {len(produced_in_com[ts])} metabolites producible by {ts} in the community: the {len(indiv_produced[ts])} metabolites above + the following {len(newly_prod[ts])} metabolites:")
+            newly_prod[ts] = list(set(produced_in_com[ts]) -
+                                  set(indiv_produced[ts]))
+            logger.info(f"\n* {len(produced_in_com[ts])} metabolites " +
+                        "producible by {ts} in the community: " +
+                        "the {len(indiv_produced[ts])} metabolites above + " +
+                        "the following {len(newly_prod[ts])} metabolites:")
             logger.info("\n".join(newly_prod[ts]))
         else:
-            logger.info(f"\n* No metabolite producible by {ts} in the community")
+            logger.info(f"\n* No metabolite producible by {ts} in the " +
+                        "community")
             produced_in_com[ts] = []
             newly_prod[ts] = []
 
@@ -210,7 +234,7 @@ def run_focus(seeds_file:str, bacteria_dir:str, focus_bact:list, output_json:str
         results[ts]["produced_in_community"] = produced_in_com[ts]
         results[ts]["community_metabolic_gain"] = newly_prod[ts]
 
-    if delete_lp_instance == True:
+    if delete_lp_instance is True:
         os.unlink(lp_instance_file)
 
     if output_json:
