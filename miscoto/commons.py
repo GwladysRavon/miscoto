@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade # noqa
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +18,6 @@
 Definition of numerous constants, for paths, names, arguments for ASP solvers.
 """
 
-import sys
 import os
 
 # Root
@@ -28,20 +27,22 @@ ROOT = os.path.dirname(__file__)
 ASP_FILE_EXTENSION = '.lp'
 
 # Directories (starting from here)
-DIR_SOURCES     = ''  # sources are inside the package
+DIR_SOURCES = ''  # sources are inside the package
 DIR_ASP_SOURCES = 'encodings'
-DIR_DATA     = os.path.join(*[ROOT , '..', 'data'])  # sources are inside the package
+DIR_DATA = os.path.join(*[ROOT, '..', 'data'])
+
 
 # ASP SOURCES
 def __asp_file(name):
-    "path to given asp source file name"
+    """"Path to given asp source file name."""
     return os.path.join(*[ROOT, DIR_ASP_SOURCES, name + ASP_FILE_EXTENSION])
+
 
 # Routine
 ASP_SRC_SCOPES = __asp_file('scopes')
 ASP_SRC_FOCUS = __asp_file('iscope_in_community')
 # Topological subcommunities
-ASP_SRC_TOPO_SOUP   = __asp_file('community_soup')
+ASP_SRC_TOPO_SOUP = __asp_file('community_soup')
 ASP_SRC_TOPO_RXN_MIN_EXCH = __asp_file('community_minexch')
 ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST = __asp_file('community_minexch_nohost')
 # Topological exchanges
@@ -50,13 +51,16 @@ ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST = __asp_file('community_minexch_nohost')
 
 def basename(filepath):
     """Return the basename of given filepath.
+
     >>> basename('~/an/interesting/file.lp')
     'file'
     """
     return os.path.splitext(os.path.basename(filepath))[0]
 
+
 def extension(filepath):
     """Return the extension of given filepath.
+
     >>> extension('~/an/interesting/file.lp')
     'lp'
     >>> extension('nothing')
@@ -66,8 +70,11 @@ def extension(filepath):
     """
     return os.path.splitext(os.path.basename(filepath))[1][1:]
 
+
 def is_valid_path(filepath):
-    """True if given filepath is a valid one (a file exists, or could exists)"""
+    """True if given filepath is a valid one
+    (a file exists, or could exists).
+    """
     if filepath and not os.access(filepath, os.W_OK):
         try:
             open(filepath, 'w').close()
