@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade
+# Copyright (C) 2018-2024 Clémence Frioux & Arnaud Belcour - Inria Dyliss - Pleiade # noqa
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import sys
 import os
 import time
@@ -38,23 +37,33 @@ miscoto mincom -a instance.lp -o option [-s seeds.sbml] [-t targets.sbml] [--int
 \n
 Option -o is either 'soup' or 'minexch' depending on the wanted modeling method
 \n
-"""
+""" # noqa
 ###############################################################################
 
 
-def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_file=None, seeds_file=None, host_file=None,
-                intersection=False, enumeration=False, union=False, optsol=False, output_json=None):
-    """Computes community selections in microbiota
-        option (str, optional): Defaults to None. Modeling type: 'soup' for uncompartmentalized, 'minexch' for compartmentalized
-        bacteria_dir (str, optional): Defaults to None. directory with symbionts metabolic networks
-        lp_instance_file (str, optional): Defaults to None. ASP instance file
-        targets_file (str, optional): Defaults to None. targets file
-        seeds_file (str, optional): Defaults to None. seeds file
-        host_file (str, optional): Defaults to None. host metabolic network file
-        intersection (bool, optional): Defaults to False. compute intersection of solutions
-        enumeration (bool, optional): Defaults to False. compute enumeration of solutions
-        union (bool, optional): Defaults to False. compute union of solutions
-        optsol (bool, optional): Defaults to False. compute one optimal solution
+def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None,
+               targets_file=None, seeds_file=None, host_file=None,
+               intersection=False, enumeration=False, union=False,
+               optsol=False, output_json=None):
+    """Computes community selections in microbiota.
+
+    option (str, optional): Defaults to None. Modeling type:
+        'soup' for uncompartmentalized, 'minexch' for compartmentalized
+    bacteria_dir (str, optional): Defaults to None. Directory with symbionts
+        metabolic networks
+    lp_instance_file (str, optional): Defaults to None. ASP instance file
+    targets_file (str, optional): Defaults to None. Targets file
+    seeds_file (str, optional): Defaults to None. Seeds file
+    host_file (str, optional): Defaults to None. Host metabolic network file
+    intersection (bool, optional): Defaults to False. Compute intersection of
+        solutions
+    enumeration (bool, optional): Defaults to False. Compute enumeration of
+        solutions
+    union (bool, optional): Defaults to False. Compute union of solutions
+    optsol (bool, optional): Defaults to False. Compute one optimal solution
+
+    Returns:
+    results [dict]: [all information related to mincom computation]
     """
     start_time = time.time()
     results = {}
@@ -65,10 +74,10 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     # checking option
     if option == "soup":
         encoding = commons.ASP_SRC_TOPO_SOUP
-    elif option == "minexch" and host_file == None:
+    elif option == "minexch" and host_file is None:
         # Check if there is an ASP instance file.
         if lp_instance_file:
-            if not os.path.isfile(lp_instance_file) :
+            if not os.path.isfile(lp_instance_file):
                 logger.critical('Instance file not found')
                 sys.exit(1)
             with open(lp_instance_file, "r") as f:
@@ -80,7 +89,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
         else:
             encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH_NOHOST
-    elif option == "minexch" and host_file != None:
+    elif option == "minexch" and host_file is not None:
         encoding = commons.ASP_SRC_TOPO_RXN_MIN_EXCH
     else:
         logger.critical("invalid option choice")
@@ -89,7 +98,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
     # case 1: instance is provided, just read targets and seeds if given
     if lp_instance_file:
-        if not os.path.isfile(lp_instance_file) :
+        if not os.path.isfile(lp_instance_file):
             logger.critical('Instance file not found')
             sys.exit(1)
 
@@ -100,12 +109,13 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if targets_file:
             logger.info('Reading targets from ' + targets_file)
             try:
-                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file, 'target')
+                targetsfacts = sbml.readSBMLspecies_clyngor(targets_file,
+                                                            'target')
             except FileNotFoundError:
                 logger.critical('Targets file not found')
                 sys.exit(1)
             except ParseError:
-                logger.critical("Invalid syntax in SBML file: "+targets_file)
+                logger.critical("Invalid syntax in SBML file: " + targets_file)
                 sys.exit(1)
             lp_instance_targets = utils.to_file(targetsfacts)
             target_instance = True
@@ -118,7 +128,7 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 logger.critical('Seeds file not found')
                 sys.exit(1)
             except ParseError:
-                logger.critical("Invalid syntax in SBML file: "+seeds_file)
+                logger.critical("Invalid syntax in SBML file: " + seeds_file)
                 sys.exit(1)
             lp_instance_seeds = utils.to_file(seedsfacts)
             seed_instance = True
@@ -134,12 +144,14 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         if host_file:
             logger.info('Reading host network from ' + host_file)
             try:
-                draftnet = sbml.readSBMLnetwork_symbionts_clyngor(host_file, 'host_metab_mod')
+                draftnet = \
+                    sbml.readSBMLnetwork_symbionts_clyngor(host_file,
+                                                           'host_metab_mod')
             except FileNotFoundError:
                 logger.critical('Host file not found')
                 sys.exit(1)
             except ParseError:
-                logger.critical("Invalid syntax in SBML file: "+host_file)
+                logger.critical("Invalid syntax in SBML file: " + host_file)
                 sys.exit(1)
             draftnet.add(Atom('draft', ["\"" + 'host_metab_mod' + "\""]))
         else:
@@ -154,25 +166,26 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             logger.critical('Seeds file not found')
             sys.exit(1)
         except ParseError:
-            logger.critical("Invalid syntax in SBML file: "+seeds_file)
+            logger.critical("Invalid syntax in SBML file: " + seeds_file)
             sys.exit(1)
         lp_instance = TermSet(draftnet.union(seeds))
 
-        logger.info('Reading targets from '+ targets_file)
+        logger.info('Reading targets from ' + targets_file)
         try:
             targets = sbml.readSBMLspecies_clyngor(targets_file, 'target')
         except FileNotFoundError:
             logger.critical('Targets file not found')
             sys.exit(1)
         except ParseError:
-            logger.critical("Invalid syntax in SBML file: "+targets_file)
+            logger.critical("Invalid syntax in SBML file: " + targets_file)
             sys.exit(1)
         lp_instance = TermSet(lp_instance.union(targets))
 
         lp_instance_file = utils.to_file(lp_instance)
 
         logger.info('Reading bacterial networks from ' + bacteria_dir + '...')
-        onlyfiles = [f for f in listdir(bacteria_dir) if isfile(join(bacteria_dir, f))]
+        onlyfiles = [f for f in listdir(bacteria_dir) if
+                     isfile(join(bacteria_dir, f))]
 
         if len(onlyfiles) == 0:
             logger.critical('No bacterial networks in ' + bacteria_dir)
@@ -182,11 +195,12 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             name = os.path.splitext(bacteria_file)[0]
             bacteria_path = os.path.join(bacteria_dir, bacteria_file)
             try:
-                one_bact_model = sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
+                one_bact_model = \
+                    sbml.readSBMLnetwork_symbionts_clyngor(bacteria_path, name)
                 one_bact_model.add(Atom('bacteria', ["\"" + name + "\""]))
                 utils.to_file(one_bact_model, lp_instance_file)
                 logger.info('Done for ' + name)
-            except:
+            except ParseError:
                 logger.info('Could not read file ' + name + ' will ignore it')
 
     else:
@@ -197,12 +211,13 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
     if not optsol and not union and not enumeration and not intersection:
         logger.info(
-            "No choice of solution provided. Will compute one optimal solution by default"
+            "No choice of solution provided. Will compute one optimal " +
+            "solution by default."
         )
         optsol = True
 
     logger.info('\nFinding optimal communities for target production...')
-    #ground the instance
+    # ground the instance
     print(encoding)
     instances = [lp_instance_file]
     if target_instance:
@@ -210,7 +225,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
     if seed_instance:
         instances.append(lp_instance_seeds)
 
-    grounded_instance = query.get_grounded_communities_from_file(instances, encoding)
+    grounded_instance = query.get_grounded_communities_from_file(instances,
+                                                                 encoding)
 
 
 # one solution
@@ -241,7 +257,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                     bacteria.append(a[0])
             elif pred == 'exchanged':
                 for a in one_model[pred, 4]:
-                    if (a[2], a[3]) in exchanged:  #exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    # exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    if (a[2], a[3]) in exchanged:
                         exchanged[(a[2], a[3])].append(a[0])
                     else:
                         exchanged[(a[2], a[3])] = []
@@ -254,7 +271,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                         target_producers[a[1]].append(a[0])
         logger.info(str(len(newly_prod)) + ' newly producible target(s):')
         logger.info("\n".join(newly_prod))
-        logger.info('Still ' + str(len(still_unprod)) + ' unproducible target(s):')
+        logger.info('Still ' + str(len(still_unprod)) +
+                    ' unproducible target(s):')
         logger.info("\n".join(still_unprod))
         logger.info('Minimal set of bacteria of size ' + str(len(bacteria)))
         logger.info("\n".join(bacteria))
@@ -274,15 +292,20 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
 # union of solutions
     if union:
-        logger.info('\n*** UNION OF MINIMAL SOLUTION ***')
+        logger.info('\n*** UNION OF MINIMAL SOLUTIONS ***')
         try:
             if optsol:
-                union_m = query.get_union_communities_from_g(grounded_instance, optimum)
+                union_m = query.get_union_communities_from_g(grounded_instance,
+                                                             optimum)
             else:
-                union_m = query.get_union_communities_from_g_noopti(grounded_instance)
+                union_m = query.get_union_communities_from_g_noopti(
+                    grounded_instance
+                    )
         except IndexError:
             logger.error(
-                "No stable model was found. Possible troubleshooting: no harmony between names for identical metabolites among host and microbes"
+                "No stable model was found. Possible troubleshooting: no " +
+                "harmony between names for identical metabolites among host " +
+                "and microbes."
             )
             quit()
         union_score = union_m[1]
@@ -291,17 +314,19 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
         union_bacteria = []
         union_exchanged = {}
         union_target_producers = {}
-        for pred in union_m :
+        for pred in union_m:
             if pred == 'chosen_bacteria':
                 for a in union_m[pred, 1]:
                     union_bacteria.append(a[0])
             elif pred == 'exchanged':
                 for a in union_m[pred, 4]:
-                    if (a[2], a[3]) in union_exchanged:  #union_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    # union_exchanged[(from,to)]=
+                    # [(what,compartto);(what,compartto)]
+                    if (a[2], a[3]) in union_exchanged:
                         union_exchanged[(a[2], a[3])].append(a[0])
                     else:
                         union_exchanged[(a[2], a[3])] = []
-                        union_exchanged[(a[2], a[3])].append( a[0])
+                        union_exchanged[(a[2], a[3])].append(a[0])
             elif pred == 'target_producer_coop_selectedcom':
                 for a in union_m[pred, 2]:
                     if not a[1] in union_target_producers:
@@ -326,24 +351,30 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
 # intersection of solutions
     if intersection:
-        logger.info('\n*** INTERSECTION OF MINIMAL SOLUTION ***')
+        logger.info('\n*** INTERSECTION OF MINIMAL SOLUTIONS ***')
         if optsol:
-            intersection_m = query.get_intersection_communities_from_g(grounded_instance, optimum)
+            intersection_m = \
+                query.get_intersection_communities_from_g(grounded_instance,
+                                                          optimum)
         else:
-            intersection_m = query.get_intersection_communities_from_g_noopti(grounded_instance)
+            intersection_m = query.get_intersection_communities_from_g_noopti(
+                grounded_instance
+                )
         intersection_score = intersection_m[1]
         optimum_inter = ','.join(map(str, intersection_score))
         intersection_m = intersection_m[0]
         inter_bacteria = []
         inter_exchanged = {}
         inter_target_producers = {}
-        for pred in intersection_m :
+        for pred in intersection_m:
             if pred == 'chosen_bacteria':
                 for a in intersection_m[pred, 1]:
                     inter_bacteria.append(a[0])
             elif pred == 'exchanged':
                 for a in intersection_m[pred, 4]:
-                    if (a[2], a[3]) in inter_exchanged:  #inter_exchanged[(from,to)]=[(what,compartto);(what,compartto)]
+                    # inter_exchanged[(from,to)]=
+                    # [(what,compartto);(what,compartto)]
+                    if (a[2], a[3]) in inter_exchanged:
                         inter_exchanged[(a[2], a[3])].append(a[0])
                     else:
                         inter_exchanged[(a[2], a[3])] = []
@@ -372,14 +403,16 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
 
 # enumeration of all solutions
     if enumeration:
-        logger.info('\n*** ENUMERATION OF MINIMAL SOLUTION ***')
+        logger.info('\n*** ENUMERATION OF MINIMAL SOLUTIONS ***')
         if optsol:
-            all_models = query.get_all_communities_from_g(grounded_instance, optimum)
+            all_models = query.get_all_communities_from_g(grounded_instance,
+                                                          optimum)
         else:
-            all_models = query.get_all_communities_from_g_noopti(grounded_instance)
+            all_models = \
+                query.get_all_communities_from_g_noopti(grounded_instance)
         count = 1
 
-        results['enum_bacteria']  = {}
+        results['enum_bacteria'] = {}
         results['enum_exchanged'] = {}
         results['enum_targetsproducers'] = {}
         for model in all_models:
@@ -393,7 +426,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                         enum_bacteria_this_sol.append(a[0])
                 elif pred == 'exchanged':
                     for a in model[pred, 4]:
-                        if (a[2], a[3]) in enum_exchanged_this_sol:  #enum_exchanged_this_sol[(from,to)]=[(what,compartto);(what,compartto)]
+                        # enum_exchanged_this_sol[(from,to)]=
+                        # [(what,compartto);(what,compartto)]
+                        if (a[2], a[3]) in enum_exchanged_this_sol:
                             enum_exchanged_this_sol[(a[2], a[3])].append(a[0])
                         else:
                             enum_exchanged_this_sol[(a[2], a[3])] = []
@@ -410,7 +445,8 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
                 logger.info("\t" + elem)
             if len(enum_exchanged_this_sol) >= 1:
                 logger.info("\t" +
-                            str(sum(len(v) for v in enum_exchanged_this_sol.values())) +
+                            str(sum(len(v) for v in
+                                    enum_exchanged_this_sol.values())) +
                             " exchange(s) in solution " + str(count))
                 for fromto in enum_exchanged_this_sol:
                     logger.info('\texchange(s) from ' + fromto[0] + ' to ' +
@@ -419,9 +455,9 @@ def run_mincom(option=None, bacteria_dir=None, lp_instance_file=None, targets_fi
             results['enum_exchanged'][count] = enum_exchanged_this_sol
             results['enum_bacteria'][count] = enum_bacteria_this_sol
             results['enum_targetsproducers'][count] = target_producers_this_sol
-            count+=1
+            count += 1
 
-    if delete_lp_instance == True:
+    if delete_lp_instance is True:
         os.unlink(lp_instance_file)
 
     if output_json:
